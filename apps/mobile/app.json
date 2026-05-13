@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Pokemon Card Collector",
+    "slug": "pokemon-card-collector",
+    "scheme": "pokemon-card-collector",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-router"
+    ],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "web": {
+      "bundler": "metro"
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
