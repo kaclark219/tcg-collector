@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { router } from "expo-router";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
 import { CardTile } from "@/components/CardTile";
 import { EmptyState } from "@/components/EmptyState";
 import { SearchBar } from "@/components/SearchBar";
@@ -10,6 +11,10 @@ import { Card } from "@/types";
 export function SearchScreen() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Card[]>([]);
+  const { width } = useWindowDimensions();
+
+  const columns = width >= 1080 ? 3 : 2;
+  const cardWidth = columns === 3 ? "31.5%" : "48.2%";
 
   useEffect(() => {
     searchCards(query).then(setResults);
@@ -27,13 +32,26 @@ export function SearchScreen() {
           message="Try a card name, set, or collector number."
         />
       ) : null}
-      {results.map((card) => (
-        <CardTile
-          key={card.id}
-          card={card}
-          onPress={() => router.push(`/cards/${card.id}`)}
-        />
-      ))}
+      <View style={styles.grid}>
+        {results.map((card) => (
+          <CardTile
+            key={card.id}
+            card={card}
+            compact
+            style={{ width: cardWidth }}
+            onPress={() => router.push(`/cards/${card.id}`)}
+          />
+        ))}
+      </View>
     </ScreenLayout>
   );
 }
+
+const styles = StyleSheet.create({
+  grid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    alignItems: "flex-start",
+  },
+});

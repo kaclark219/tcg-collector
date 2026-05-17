@@ -25,6 +25,55 @@ def _row_to_card(row: dict) -> Card:
     )
 
 
+def _normalize_collector_number(number: str | None) -> str:
+    if not number:
+        return ""
+
+    normalized = number.strip()
+    if normalized.isdigit():
+        return str(int(normalized))
+    return normalized.lower()
+
+
+def _card_dedupe_key(card: Card) -> tuple[str, str, str]:
+    return (
+        card.name.strip().lower(),
+        card.set_name.strip().lower(),
+        _normalize_collector_number(card.number),
+    )
+
+
+def _card_priority(card: Card) -> tuple[int, int, int, str]:
+    id_score = 0
+    if "pt5" in card.id:
+        id_score += 20
+    if card.id.startswith("sv") and "." in card.id:
+        id_score -= 5
+
+    number_score = 0
+    stripped = card.number.strip()
+    numeric_part = "".join(ch for ch in stripped if ch.isdigit())
+    if numeric_part and stripped.isdigit():
+        if len(stripped) < 3:
+            number_score += 10
+        elif len(stripped) == 3:
+            number_score -= 2
+
+    image_score = 0 if card.image_url else 5
+
+    return (id_score, number_score, image_score, card.id)
+
+
+def _dedupe_cards(cards: list[Card]) -> list[Card]:
+    deduped: dict[tuple[str, str, str], Card] = {}
+    for card in cards:
+        key = _card_dedupe_key(card)
+        existing = deduped.get(key)
+        if existing is None or _card_priority(card) < _card_priority(existing):
+            deduped[key] = card
+    return list(deduped.values())
+
+
 def search_cards(query: str) -> list[Card]:
     normalized_query = query.strip().lower()
     try:
@@ -89,7 +138,7 @@ def search_cards(query: str) -> list[Card]:
                         ),
                     )
                 rows = cursor.fetchall()
-            return [_row_to_card(row) for row in rows]
+            return _dedupe_cards([_row_to_card(row) for row in rows])
     except (DatabaseNotConfiguredError, UndefinedTable, psycopg.Error):
         if not normalized_query:
             return [Card(**card) for card in MOCK_CARDS]

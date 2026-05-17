@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://127.0.0.1:8003";
+export const API_BASE_URL = "http://127.0.0.1:8003";
 
 type RequestOptions = {
   method?: "GET" | "POST" | "PATCH" | "DELETE";

@@ -1,5 +1,5 @@
 import { mockCards } from "@/data/mockData";
-import { apiRequest } from "@/services/apiClient";
+import { API_BASE_URL, apiRequest } from "@/services/apiClient";
 import { normalizeTcgdexImageUrl } from "@/services/tcgdexImages";
 import { Card } from "@/types";
 
@@ -18,13 +18,15 @@ type ApiCard = {
 };
 
 function normalizeCard(card: ApiCard): Card {
+  const directImageUrl = normalizeTcgdexImageUrl(card.image_url);
+
   return {
     id: card.id,
     name: card.name,
     setName: card.set_name ?? "Unknown set",
     number: card.number,
     rarity: card.rarity,
-    imageUrl: normalizeTcgdexImageUrl(card.image_url),
+    imageUrl: directImageUrl ? `${API_BASE_URL}/cards/${card.id}/image` : undefined,
     variantNormal: card.variant_normal ?? false,
     variantReverse: card.variant_reverse ?? false,
     variantHolo: card.variant_holo ?? false,

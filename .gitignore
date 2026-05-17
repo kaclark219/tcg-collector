@@ -16,3 +16,4 @@ venv/
 services/api/.env
 services/api/.env.*
 !services/api/.env.example
+services/api/import_sources/json_cards/*.json
